@@ -70,7 +70,9 @@ PARSARG.add_argument("-d", action="store_true",
 PARSARG.add_argument("-v", action="version",
                      version="%(prog)s v1.1 MIT license", help="Version")
 PARSARG.add_argument("-l", nargs=1, type=str, 
-                    choices=['fortran', 'Fortran','c','cpp'], default=['fortran'],help="Output language name: fortran, c, cpp")
+                    choices=['fortran', 'Fortran','FORTRAN','fort','FORT','Fort', # fortran
+                    'c','cpp','C','Cpp','CPP','c++','C++', # C and C++
+                    ], default=['fortran'],help="Output language name: fortran, c, cpp")
 ARGS = PARSARG.parse_args()
 
 # Those previous values are not available as an ASCII file:
@@ -91,6 +93,8 @@ with urlopen(url) as nist_file:
 
 MODULE_NAME = "CODATA_constants"
 TABS = "  "
+fortran=False
+folder_out = 'other_languages'
 
 match ARGS.l[0].lower():
     case 'fortran':
@@ -101,13 +105,14 @@ match ARGS.l[0].lower():
         const_prefix = "  real(wp), parameter :: "
         const_suffix = "_wp "
         final_line = "end module "+MODULE_NAME+"\n"
-    case 'c' | 'cpp':
-        folder_out = 'c'
+    case 'c' | 'cpp' | 'c++':
         extention = '.h'
-        line_comment = '\\'
+        line_comment = '//'
+        const_prefix = "const double "
+        const_suffix = ";"
+        final_line = ""
         pass
     case _: raise Exception("This language is not recognized or has not been implemented yet.")
-
 # Creating the constant-containing file:
 out_file_name = MODULE_NAME + extention
 out_file = open(folder_out+out_file_name, "w")
