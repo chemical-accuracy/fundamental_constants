@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 '''
 Downloads CODATA fundamental physical constants from NIST website
-and generates a Fortran module CODATA_constants.f90,
-and also a test.f90 file that can be used to validate the process.
-Contributed by Vincent MAGNIN, 2021-03-11
+and generates a language-specific (fortran, C/C++) file. For Fortran, 
+module CODATA_constants.f90 and also a test.f90 file are generated.
+The latter can be used to validate the process.
+For C/C++ a header file CODATA_constants.h is generated
+Original code by Vincent MAGNIN, 2021-03-11
 MIT license
 https://github.com/vmagnin/fundamental_constants
-Last modifications: 2021-03-23
+Last modifications: 2022-07-02
 '''
 
 import argparse
@@ -66,58 +68,79 @@ PARSARG.add_argument("-y", action="store", nargs=1, type=int,
 PARSARG.add_argument("-d", action="store_true",
                      help="Delete calculated values (...)")
 PARSARG.add_argument("-v", action="version",
-                     version="%(prog)s v1.0 MIT license", help="Version")
+                     version="%(prog)s v1.1 MIT license", help="Version")
+PARSARG.add_argument("-l", nargs=1, type=str, 
+                    choices=['fortran', 'Fortran','c','cpp'], default=['fortran'],help="Output language name: fortran, c, cpp")
 ARGS = PARSARG.parse_args()
 
 # Those previous values are not available as an ASCII file:
 # 2006, 2002, 1998, 1986, 1973, 1969.
 # Next version should be released in 2022.
-if ARGS.y[0] == 2018:
-    url = "https://physics.nist.gov/cuu/Constants/Table/allascii.txt"
-elif ARGS.y[0] == 2014:
-    url = "https://physics.nist.gov/cuu/Constants/Table/allascii_2014.txt"
-elif ARGS.y[0] == 2010:
-    url = "https://physics.nist.gov/cuu/Constants/allascii_2010.txt"
+match ARGS.y[0]:
+    case 2018:
+        url = "https://physics.nist.gov/cuu/Constants/Table/allascii.txt"
+    case 2014:
+        url = "https://physics.nist.gov/cuu/Constants/Table/allascii_2014.txt"
+    case 2010:
+        url = "https://physics.nist.gov/cuu/Constants/allascii_2010.txt"
 
 # Downloading the file from NIST website:
 with urlopen(url) as nist_file:
     file_content = nist_file.read().decode('utf-8')
     lines_list = file_content.splitlines(True)
 
-# Creating the .f90 file:
 MODULE_NAME = "CODATA_constants"
 TABS = "  "
-F_FILE_NAME = MODULE_NAME + ".f90"
-f_file = open("src/"+F_FILE_NAME, "w")
-print("Generating the src/"+F_FILE_NAME+" file using the recommended "
+
+match ARGS.l[0].lower():
+    case 'fortran':
+        fortran=True
+        folder_out = 'fortran/'
+        extention = ".f90"
+        line_comment = '!'
+        const_prefix = "  real(wp), parameter :: "
+        const_suffix = "_wp "
+        final_line = "end module "+MODULE_NAME+"\n"
+    case 'c' | 'cpp':
+        folder_out = 'c'
+        extention = '.h'
+        line_comment = '\\'
+        pass
+    case _: raise Exception("This language is not recognized or has not been implemented yet.")
+
+# Creating the constant-containing file:
+out_file_name = MODULE_NAME + extention
+out_file = open(folder_out+out_file_name, "w")
+print("Generating the "+ folder_out +out_file_name+" file using the recommended "
       + str(ARGS.y[0]) + " values:")
 print(url)
 
 # Writing informations in comments:
-f_file.write("!" + 79*"-" + "\n")
-f_file.write("! " + F_FILE_NAME + "\n")
-FILE_HEADER = "! Automatically generated from " + str(ARGS.y[0]) \
+out_file.write(line_comment + 79*"-" + "\n")
+out_file.write(line_comment + " " + out_file_name + "\n")
+FILE_HEADER = line_comment + " Automatically generated from " + str(ARGS.y[0]) \
               + " CODATA NIST file:\n" \
-              + "! " + url + "\n" \
-              + "! downloaded on " + datetime.date.today().isoformat() + ".\n"
-f_file.write(FILE_HEADER)
-f_file.write("!" + 79*"-" + "\n")
+              + line_comment + " " + url + "\n" \
+              + line_comment + " downloaded on " + datetime.date.today().isoformat() + ".\n"
+out_file.write(FILE_HEADER)
+out_file.write(line_comment + 79*"-" + "\n")
 
-# Beginning the Fortran module:
-f_file.write("\nmodule " + MODULE_NAME + "\n" + TABS +
-             "use, intrinsic :: iso_fortran_env, only: wp=>real64\n" +
-             TABS + "implicit none\n\n")
+if fortran:
+    # Beginning the Fortran module:
+    out_file.write("\nmodule " + MODULE_NAME + "\n" + TABS +
+                "use, intrinsic :: iso_fortran_env, only: wp=>real64\n" +
+                TABS + "implicit none\n\n")
 
-# Creating a test file that will generate a txt file from the Fortran constants:
-test_file = open("test/test.f90", "w")
-TEST_MODULE_NAME = "test"
-test_file.write("\nmodule " + TEST_MODULE_NAME + "\n" + TABS +
-             "use CODATA_constants\n" + TABS +
-             "use functions, only: write_CODATA\n" + TABS +
-             "use, intrinsic :: iso_fortran_env, only: wp=>real64\n" +
-             TABS + "implicit none\n\ncontains\n" +
-             "subroutine tests\ncharacter(125) :: s\n" +
-             "open(unit = 1, file = 'fortran_generated_"+str(ARGS.y[0])+".txt')\n")
+    # Creating a test file that will generate a txt file from the Fortran constants:
+    test_file = open(folder_out + "test/test.f90", "w")
+    TEST_MODULE_NAME = "test"
+    test_file.write("\nmodule " + TEST_MODULE_NAME + "\n" + TABS +
+                "use CODATA_constants\n" + TABS +
+                "use functions, only: write_CODATA\n" + TABS +
+                "use, intrinsic :: iso_fortran_env, only: wp=>real64\n" +
+                TABS + "implicit none\n\ncontains\n" +
+                "subroutine tests\ncharacter(125) :: s\n" +
+                "open(unit = 1, file = 'fortran_generated_"+str(ARGS.y[0])+".txt')\n")
 
 #-------------------------------------------------------------------------------
 # Format description of the NIST allascii.txt file:
@@ -130,7 +153,7 @@ test_file.write("\nmodule " + TEST_MODULE_NAME + "\n" + TABS +
 # Column 4: Unit (<=15 characters)
 #-------------------------------------------------------------------------------
 
-header = True
+header = True # changes to False later when the header is over
 nb_constants = 0
 
 for line in lines_list:
@@ -140,13 +163,14 @@ for line in lines_list:
         line2 = line.replace("\n", "")
 
     if header:
-        # The Fortran test file will print the same header:
-        test_file.write("s='"+line2.rstrip()+"'\n")
-        test_file.write("write(1,'(a)') trim(s)\n")
+        if fortran:
+            # The Fortran test file will print the same header:
+            test_file.write("s='"+line2.rstrip()+"'\n")
+            test_file.write("write(1,'(a)') trim(s)\n")
         # Looking for the end of the header:
         if line2 == 125*'-':
             header = False
-    else:
+    else: # Header is over
         # Extracting the four columns (with Python the right bound is excluded):
         quantity = line2[0:60].rstrip()
         value = line2[60:85].rstrip()
@@ -170,34 +194,35 @@ for line in lines_list:
             else:
                 value = value.replace("...", "")
 
-        # Some constants are mathematically integers, others have a decimal point:
-        if value.find(".") == -1 and value.find("e") == -1:
-            value = value + "e0"
+        if fortran:
+            # Some constants are mathematically integers, others have a decimal point:
+            if value.find(".") == -1 and value.find("e") == -1:
+                value = value + "e0"
 
-        # Test: print the value in a txt file, trying to mimick the CODATA format:
-        result = get_number_parts(value)
-        #print(value, result)
-        left = result[0]
-        right = result[1]
-        expo = result[2]
-        test_file.write("call write_CODATA('"+line2[0:60]+"', &\n" + 
-                        TABS +"& " +quantity+", "+str(left)+
-                        ", "+str(right)+", "+str(expo)+")\n")
+            # Test: print the value in a txt file, trying to mimick the CODATA format:
+            result = get_number_parts(value)
+            #print(value, result)
+            left = result[0]
+            right = result[1]
+            expo = result[2]
+            test_file.write("call write_CODATA('"+line2[0:60]+"', &\n" + 
+                            TABS +"& " +quantity+", "+str(left)+
+                            ", "+str(right)+", "+str(expo)+")\n")
 
-        # Fortran declaration in the CODATA_constants module:
-        f_file.write(TABS + "real(wp), parameter :: " + quantity + " = " + value
-                     + "_wp ! " + uncertainty + "  " + unit + "\n")
+        # Declaration in the CODATA_constants file:
+        out_file.write(const_prefix + quantity + " = " + value + const_suffix + line_comment + " " + uncertainty + "  " + unit + "\n")
 
         nb_constants = nb_constants + 1
 
 # Finalizing the output file:
-f_file.write("end module "+MODULE_NAME+"\n")
-f_file.close()
+out_file.write(final_line)
+out_file.close()
 
 print(str(nb_constants)+" constants written")
-print('{}{}'.format(os.stat("src/"+F_FILE_NAME).st_size, " bytes"))
+print('{}{}'.format(os.stat(folder_out+out_file_name).st_size, " bytes"))
 
-# Finalizing the test file:
-test_file.write("close(1)\n" +
-                "end subroutine tests\nend module "+TEST_MODULE_NAME+"\n")
-test_file.close()
+if fortran:
+    # Finalizing the test file:
+    test_file.write("close(1)\n" +
+                    "end subroutine tests\nend module "+TEST_MODULE_NAME+"\n")
+    test_file.close()

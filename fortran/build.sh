@@ -15,4 +15,4 @@ fi
 
 rm -f *.mod
 
-"${GFC}" -Wall -Wextra -pedantic -std=f2018 src/CODATA_constants.f90 test/main.f90 -o build/runTests
+"${GFC}" -Wall -Wextra -pedantic -std=f2018 CODATA_constants.f90 test/main.f90 -o build/runTests

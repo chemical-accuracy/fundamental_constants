@@ -1,13 +1,13 @@
 name = "fundamental_constants"
-version = "1.1"
+version = "1.11"
 license = "MIT"
 author = "Vincent MAGNIN"
-maintainer = "https://github.com/vmagnin/"
+maintainer = "https://github.com/chemical-accuracy"
 copyright = "2021 Vincent MAGNIN"
 
 
 [library]
-source-dir="src"
+source-dir="."
 
 [[test]]
 name="runTests"

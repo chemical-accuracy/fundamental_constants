@@ -2,6 +2,15 @@
 All notable changes to the project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [fundamental constants v1.11] 2022-07-02
+
+## Added
+- -l argument to the main python script (nist.py) allowing user to choose the output language
+- Ability to generate a C/C++ header file analogous to the Fortran's MODULE file
+
+## Changed
+- Code now contains match statements, requiring Python 3.10+
+- Move fortran-specific features from `.` and `src` to `fortran` directory
 ## [fundamental constants v1.1] 2021-04-03
 
 ## Added
