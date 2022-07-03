@@ -7,10 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Added
 - -l argument to the main python script (nist.py) allowing user to choose the output language
 - Ability to generate a C/C++ header file analogous to the Fortran's MODULE file
+- Ability to generate a .py, .m and .copy_to_nb files for Python, Matlab and Mathematica calculations respectively
+- Single script `generate.sh` that generates all the versions for all languages
 
 ## Changed
 - Code now contains match statements, requiring Python 3.10+
 - Move fortran-specific features from `.` and `src` to `fortran` directory
+- Update the lint to NIST ASCII table (it changed for the older tables)
+- Print out the year in the file name if it's not the newest constants
 ## [fundamental constants v1.1] 2021-04-03
 
 ## Added

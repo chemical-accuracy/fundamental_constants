@@ -68,37 +68,40 @@ PARSARG.add_argument("-y", action="store", nargs=1, type=int,
 PARSARG.add_argument("-d", action="store_true",
                      help="Delete calculated values (...)")
 PARSARG.add_argument("-v", action="version",
-                     version="%(prog)s v1.1 MIT license", help="Version")
+                     version="%(prog)s v1.11 MIT license", help="Version")
 PARSARG.add_argument("-l", nargs=1, type=str, 
                     choices=['fortran', 'Fortran','FORTRAN','fort','FORT','Fort', # fortran
                     'c','cpp','C','Cpp','CPP','c++','C++', # C and C++
                     'Python', 'python', 'PYTHON', 'py', 'PY', # Python
                     'matlab','Matlab','MATLAB','mat','MAT', # Matlab
-                    ], default=['fortran'],help="Output language name: fortran, c, cpp, python, matlab")
+                    'mathematica', 'Mathematica' # mathematica
+                    ], default=['fortran'],help="Output language name: fortran, c, cpp, python, matlab, mathematica")
 ARGS = PARSARG.parse_args()
 
 # Those previous values are not available as an ASCII file:
 # 2006, 2002, 1998, 1986, 1973, 1969.
 # Next version should be released in 2022.
+newest = False
 match ARGS.y[0]:
     case 2018:
+        newest = True
         url = "https://physics.nist.gov/cuu/Constants/Table/allascii.txt"
     case 2014:
-        url = "https://physics.nist.gov/cuu/Constants/Table/allascii_2014.txt"
+        url = "https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2014.txt"
     case 2010:
-        url = "https://physics.nist.gov/cuu/Constants/allascii_2010.txt"
+        url = "https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2010.txt"
 
 # Downloading the file from NIST website:
 with urlopen(url) as nist_file:
     file_content = nist_file.read().decode('utf-8')
     lines_list = file_content.splitlines(True)
 
-MODULE_NAME = "CODATA_constants"
+MODULE_NAME = "CODATA_" + (str(ARGS.y[0]) + '_')*(not newest) + "constants"
 TABS = "  "
 fortran=False
 folder_out = 'other_languages/'
 const_suffix = ' '
-const_prefix = final_line = ""
+const_prefix = final_line = trail_line_comment = ""
 match ARGS.l[0].lower():
     case 'fortran':
         fortran=True
@@ -116,10 +119,16 @@ match ARGS.l[0].lower():
     case 'python' | 'py':
         extention = '.py'
         line_comment = '#'
+        final_line = "# Note: there is a MolSSI module for python https://github.com/MolSSI/QCElemental\n" + "# Also physical constants are available from 'scipy.constants'"
     case 'matlab' | 'mat':
         extention = '.m'
         line_comment = '%'
-        final_line = "\n% save to a binary MAT file '" + f"{MODULE_NAME}"+".mat', which can later be loaded by your MATLAB script.\n"+f"save {MODULE_NAME}" 
+        final_line = "\n% save to a binary MAT file '" + f"{MODULE_NAME}"+".mat', which can later be loaded by your MATLAB script.\n"+f"save {MODULE_NAME}"
+    case "mathematica":
+        extention = '.copy_to_nb' # this one is not an easy text file
+        line_comment = '(*'
+        trail_line_comment = ' *)'
+        final_line = "(* Copy the contents of this file to a cell of your notebook.nb *)"
     case _: raise Exception("This language is not recognized or has not been implemented yet.")
 # Creating the constant-containing file:
 out_file_name = MODULE_NAME + extention
@@ -129,14 +138,14 @@ print("Generating the "+ folder_out +out_file_name+" file using the recommended 
 print(url)
 
 # Writing informations in comments:
-out_file.write(line_comment + 79*"-" + "\n")
-out_file.write(line_comment + " " + out_file_name + "\n")
+out_file.write(line_comment + 79*"-" + trail_line_comment + "\n")
+out_file.write(line_comment + " " + out_file_name + trail_line_comment + "\n")
 FILE_HEADER = line_comment + " Automatically generated from " + str(ARGS.y[0]) \
-              + " CODATA NIST file:\n" \
-              + line_comment + " " + url + "\n" \
-              + line_comment + " downloaded on " + datetime.date.today().isoformat() + ".\n"
+              + " CODATA NIST file:" + trail_line_comment + "\n" \
+              + line_comment + " " + url + trail_line_comment + "\n" \
+              + line_comment + " downloaded on " + datetime.date.today().isoformat() + trail_line_comment + ".\n"
 out_file.write(FILE_HEADER)
-out_file.write(line_comment + 79*"-" + "\n")
+out_file.write(line_comment + 79*"-" + trail_line_comment + "\n")
 
 if fortran:
     # Beginning the Fortran module:
@@ -223,7 +232,7 @@ for line in lines_list:
                             ", "+str(right)+", "+str(expo)+")\n")
 
         # Declaration in the CODATA_constants file:
-        out_file.write(const_prefix + quantity + " = " + value + const_suffix + line_comment + " " + uncertainty + "  " + unit + "\n")
+        out_file.write(const_prefix + quantity + " = " + value + const_suffix + line_comment + " " + uncertainty + "  " + unit + trail_line_comment + "\n")
 
         nb_constants = nb_constants + 1
 

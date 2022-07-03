@@ -1,8 +1,8 @@
 !-------------------------------------------------------------------------------
 ! CODATA_2010_constants.f90
 ! Automatically generated from 2010 CODATA NIST file:
-! https://physics.nist.gov/cuu/Constants/allascii_2010.txt
-! downloaded on 2021-03-23.
+! https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2010.txt
+! downloaded on 2022-07-02.
 !-------------------------------------------------------------------------------
 
 module CODATA_2010_constants

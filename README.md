@@ -6,7 +6,52 @@ The `nist.py` Python script downloads the CODATA recommended values (latest by d
 
 https://physics.nist.gov/cuu/Constants/Table/allascii.txt
 
-and generates a language-specific file containing these values and available for computations. The 2018 CODATA set contains 354 constants. The next set should be published in 2022.
+and generates a language-specific file containing these values and available for computations. The 2018 CODATA set contains 354 constants. The next set should be published in 2022. The code currently outputs constants for the following languages:
+1. `Fortran` (including extensive testing) `CODATA_constants.f90`
+2. `C/C++` header file `CODATA_constants.h`
+3. `Python` file `CODATA_constants.py`
+4. `Matlab` file `CODATA_constants.m` with an autosave as `CODATA_constants.mat`
+5. `Mathematica` file `CODATA_constants.copy_to_nb` to be directly copied into Mathematica notebook.
+## Generating a new file
+
+### Default options
+
+From the project root directory, type:
+
+```bash
+$ ./nist.py
+Generating the fortran/CODATA_constants.f90 file using the recommended 2018 values:
+https://physics.nist.gov/cuu/Constants/Table/allascii.txt
+354 constants written
+34423 bytes
+```
+
+### Options of the Python script
+
+```bash
+$ ./nist.py --help
+usage: nist.py [-h] [-y {2010,2014,2018}] [-d] [-v] [-l {fortran,c,cpp,python,matlab,mathematica}]
+
+Downloads CODATA fundamental physical constants from NIST website and generates a language-specific file (including a Fortran module).
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -y {2010,2014,2018}  CODATA values: 2010, 2014 or 2018
+  -d                   Delete calculated values (...)
+  -v                   Version
+  -l                   Output language name: fortran, c, cpp, python, matlab, mathematica
+
+Sources : <https://github.com/chemical-accuracy/fundamental_constants>
+```
+
+By default latest values are downloaded. But you can force the year with the `-y` option.
+
+By default, calculated values are kept. But you can delete them with the `-d` option if you prefer to calculate them in your program, in order to have more decimals.
+
+### Why is there an option for all the different years?
+
+Most of the time you will use the latest values. But if you need to reproduce exactly the results obtained several years ago, you may need to use the corresponding CODATA set. It can be also useful if your project contains tests that expect a very precise numerical result.
+
 ## Fortran
 For Fortran `module CODATA_constants` in the file `fortran/CODATA_constants.f90` is created. It also generates a Fortran program `test/test.f90` which uses that module to generate a text file reproducing the two first columns, with (nearly) the same formatting as in the CODATA NIST file.
 
@@ -52,46 +97,6 @@ You can create your own short module with a `use CODATA_latest_constants` statem
 
 Note also that the names of some constants may vary each time CODATA releases new recommended values.
 
-## Why several modules?
-
-Most of the time you will use the latest values. But if you need to reproduce exactly the results obtained several years ago, you may need to use the corresponding CODATA set. It can be also useful if your project contains tests that expect a very precise numerical result.
-
-
-## Generating a new file
-
-### Default options
-
-From the project root directory, type:
-
-```bash
-$ ./nist.py
-Generating the fortran/CODATA_constants.f90 file using the recommended 2018 values:
-https://physics.nist.gov/cuu/Constants/Table/allascii.txt
-354 constants written
-34423 bytes
-```
-
-### Options of the Python script
-
-```bash
-$ ./nist.py --help
-usage: nist.py [-h] [-y {2010,2014,2018}] [-d] [-v] [-l {fortran,c}]
-
-Downloads CODATA fundamental physical constants from NIST website and generates a Fortran module.
-
-optional arguments:
-  -h, --help           show this help message and exit
-  -y {2010,2014,2018}  CODATA values: 2010, 2014 or 2018
-  -d                   Delete calculated values (...)
-  -v                   Version
-  -l                   Output language name: fortran, c, cpp
-
-Sources : <https://github.com/chemical-accuracy/fundamental_constants>
-```
-
-By default latest values are downloaded. But you can force the year with the `-y` option.
-
-By default, calculated values are kept. But you can delete them with the `-d` option if you prefer to calculate them in your program, in order to have more decimals.
 
 
 ## Validating the values in the Fortran module

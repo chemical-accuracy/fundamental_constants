@@ -1,8 +1,8 @@
 !-------------------------------------------------------------------------------
 ! CODATA_2014_constants.f90
 ! Automatically generated from 2014 CODATA NIST file:
-! https://physics.nist.gov/cuu/Constants/Table/allascii_2014.txt
-! downloaded on 2021-03-23.
+! https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2014.txt
+! downloaded on 2022-07-02.
 !-------------------------------------------------------------------------------
 
 module CODATA_2014_constants

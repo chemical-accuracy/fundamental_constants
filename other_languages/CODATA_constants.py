@@ -358,3 +358,5 @@ weak_mixing_angle = 0.22290 # 0.000 30
 Wien_frequency_displacement_law_constant = 5.878925757e10 # (exact)  Hz K^-1
 Wien_wavelength_displacement_law_constant = 2.897771955e-3 # (exact)  m K
 W_to_Z_mass_ratio = 0.88153 # 0.000 17  
+# Note: there is a MolSSI module for python https://github.com/MolSSI/QCElemental
+# Also physical constants are available from 'scipy.constants'
