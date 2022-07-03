@@ -72,7 +72,9 @@ PARSARG.add_argument("-v", action="version",
 PARSARG.add_argument("-l", nargs=1, type=str, 
                     choices=['fortran', 'Fortran','FORTRAN','fort','FORT','Fort', # fortran
                     'c','cpp','C','Cpp','CPP','c++','C++', # C and C++
-                    ], default=['fortran'],help="Output language name: fortran, c, cpp")
+                    'Python', 'python', 'PYTHON', 'py', 'PY', # Python
+                    'matlab','Matlab','MATLAB','mat','MAT', # Matlab
+                    ], default=['fortran'],help="Output language name: fortran, c, cpp, python, matlab")
 ARGS = PARSARG.parse_args()
 
 # Those previous values are not available as an ASCII file:
@@ -94,8 +96,9 @@ with urlopen(url) as nist_file:
 MODULE_NAME = "CODATA_constants"
 TABS = "  "
 fortran=False
-folder_out = 'other_languages'
-
+folder_out = 'other_languages/'
+const_suffix = ' '
+const_prefix = final_line = ""
 match ARGS.l[0].lower():
     case 'fortran':
         fortran=True
@@ -110,8 +113,13 @@ match ARGS.l[0].lower():
         line_comment = '//'
         const_prefix = "const double "
         const_suffix = ";"
-        final_line = ""
-        pass
+    case 'python' | 'py':
+        extention = '.py'
+        line_comment = '#'
+    case 'matlab' | 'mat':
+        extention = '.m'
+        line_comment = '%'
+        final_line = "\n% save to a binary MAT file '" + f"{MODULE_NAME}"+".mat', which can later be loaded by your MATLAB script.\n"+f"save {MODULE_NAME}" 
     case _: raise Exception("This language is not recognized or has not been implemented yet.")
 # Creating the constant-containing file:
 out_file_name = MODULE_NAME + extention
