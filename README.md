@@ -135,3 +135,7 @@ You can use alternatively the `build.sh` script to build the `build/runTests` ex
 * If you need a more complete project around constants, you may be interested by:
     * https://gitlab.com/apthorpe/stdlib-codata
     * https://github.com/MolSSI/QCElemental
+## Future plans:
+1. Periodic table.
+2. Better names for constants.
+3. Derived units.

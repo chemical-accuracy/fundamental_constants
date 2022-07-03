@@ -2,7 +2,7 @@
 // CODATA_2010_constants.h
 // Automatically generated from 2010 CODATA NIST file:
 // https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2010.txt
-// downloaded on 2022-07-02.
+// downloaded on 2022-07-03
 //-------------------------------------------------------------------------------
 const double twotwozero_lattice_spacing_of_silicon = 192.0155714e-12;// 0.000 0032 e-12  m
 const double alpha_particle_electron_mass_ratio = 7294.2995361;// 0.000 0029  

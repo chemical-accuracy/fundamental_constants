@@ -2,7 +2,7 @@
 # CODATA_2014_constants.py
 # Automatically generated from 2014 CODATA NIST file:
 # https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2014.txt
-# downloaded on 2022-07-02.
+# downloaded on 2022-07-03
 #-------------------------------------------------------------------------------
 twotwozero_lattice_spacing_of_silicon = 192.0155714e-12 # 0.000 0032 e-12  m
 alpha_particle_electron_mass_ratio = 7294.29954136 # 0.000 000 24  

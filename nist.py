@@ -143,7 +143,7 @@ out_file.write(line_comment + " " + out_file_name + trail_line_comment + "\n")
 FILE_HEADER = line_comment + " Automatically generated from " + str(ARGS.y[0]) \
               + " CODATA NIST file:" + trail_line_comment + "\n" \
               + line_comment + " " + url + trail_line_comment + "\n" \
-              + line_comment + " downloaded on " + datetime.date.today().isoformat() + trail_line_comment + ".\n"
+              + line_comment + " downloaded on " + datetime.date.today().isoformat() + trail_line_comment + "\n"
 out_file.write(FILE_HEADER)
 out_file.write(line_comment + 79*"-" + trail_line_comment + "\n")
 

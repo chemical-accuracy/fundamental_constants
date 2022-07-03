@@ -2,7 +2,7 @@
 % CODATA_constants.m
 % Automatically generated from 2018 CODATA NIST file:
 % https://physics.nist.gov/cuu/Constants/Table/allascii.txt
-% downloaded on 2022-07-02.
+% downloaded on 2022-07-03
 %-------------------------------------------------------------------------------
 alpha_particle_electron_mass_ratio = 7294.29954142 % 0.000 000 24  
 alpha_particle_mass = 6.6446573357e-27 % 0.000 000 0020 e-27  kg
